@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import FilterSidebar, { MobileFilterDrawer } from "@/components/product/FilterSidebar";
 import ProductGrid from "@/components/product/ProductGrid";
 import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
 const productCategories = [
     { label: "All Products", value: "all" },
@@ -16,7 +17,7 @@ const productCategories = [
     { label: "Carving Items", value: "CarvingItems" },
 ];
 
-export default function ProductCategoryPage() {
+function ProductCategoryContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const categoryParam = searchParams.get('category');
@@ -96,6 +97,7 @@ export default function ProductCategoryPage() {
         if (activeCategories.length > 0) {
             // Simplify URL: if 'all', don't show param or show 'all'?
             // Providing 'all' explicitly is good for clarity as per user desire.
+            // I'll set 'category=all'.
             if (activeCategories.includes('all')) {
                 // Should we show ?category=all? The original code didn't. 
                 // But user wants "Shop now -> all category filter on".
@@ -162,66 +164,74 @@ export default function ProductCategoryPage() {
     const activeCount = Object.values(selectCategory).filter(Boolean).length;
 
     return (
-        <div className="min-h-screen bg-background pt-24 pb-12">
-            <div className="container px-4 md:px-6">
+        <div className="container px-4 md:px-6">
 
-                {/* Header Section */}
-                <div className="mb-8 space-y-2">
-                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Marketplace</h1>
-                    <p className="text-muted-foreground">
-                        Explore our premium collection of custom-made items.
-                    </p>
-                </div>
+            {/* Header Section */}
+            <div className="mb-8 space-y-2">
+                <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Marketplace</h1>
+                <p className="text-muted-foreground">
+                    Explore our premium collection of custom-made items.
+                </p>
+            </div>
 
-                {/* Mobile Filter */}
-                <div className="lg:hidden mb-6">
-                    <MobileFilterDrawer
-                        categories={productCategories}
-                        selectedCategories={selectCategory}
-                        onCategoryChange={handleSelectCategory}
-                        sortBy={sortBy}
-                        onSortChange={handleOnChangeSortBy}
-                    />
-                </div>
+            {/* Mobile Filter */}
+            <div className="lg:hidden mb-6">
+                <MobileFilterDrawer
+                    categories={productCategories}
+                    selectedCategories={selectCategory}
+                    onCategoryChange={handleSelectCategory}
+                    sortBy={sortBy}
+                    onSortChange={handleOnChangeSortBy}
+                />
+            </div>
 
-                <div className="flex flex-col lg:flex-row gap-8">
-                    {/* Sidebar (Desktop) */}
-                    <div className="hidden lg:block w-64 flex-shrink-0">
-                        <div className="sticky top-28">
-                            <FilterSidebar
-                                categories={productCategories}
-                                selectedCategories={selectCategory}
-                                onCategoryChange={handleSelectCategory}
-                                sortBy={sortBy}
-                                onSortChange={handleOnChangeSortBy}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Main Content */}
-                    <div className="flex-1">
-                        <div className="mb-4 flex items-center justify-between">
-                            <p className="text-sm text-muted-foreground font-medium">
-                                Showing {data.length} results
-                            </p>
-                            {activeCount > 0 && (
-                                <button
-                                    onClick={handleClearFilters}
-                                    className="text-sm text-primary hover:underline font-medium"
-                                >
-                                    Clear Filters
-                                </button>
-                            )}
-                        </div>
-
-                        <ProductGrid
-                            data={data}
-                            loading={loading}
-                            onClearFilters={handleClearFilters}
+            <div className="flex flex-col lg:flex-row gap-8">
+                {/* Sidebar (Desktop) */}
+                <div className="hidden lg:block w-64 flex-shrink-0">
+                    <div className="sticky top-28">
+                        <FilterSidebar
+                            categories={productCategories}
+                            selectedCategories={selectCategory}
+                            onCategoryChange={handleSelectCategory}
+                            sortBy={sortBy}
+                            onSortChange={handleOnChangeSortBy}
                         />
                     </div>
                 </div>
+
+                {/* Main Content */}
+                <div className="flex-1">
+                    <div className="mb-4 flex items-center justify-between">
+                        <p className="text-sm text-muted-foreground font-medium">
+                            Showing {data.length} results
+                        </p>
+                        {activeCount > 0 && (
+                            <button
+                                onClick={handleClearFilters}
+                                className="text-sm text-primary hover:underline font-medium"
+                            >
+                                Clear Filters
+                            </button>
+                        )}
+                    </div>
+
+                    <ProductGrid
+                        data={data}
+                        loading={loading}
+                        onClearFilters={handleClearFilters}
+                    />
+                </div>
             </div>
+        </div>
+    );
+}
+
+export default function ProductCategoryPage() {
+    return (
+        <div className="min-h-screen bg-background pt-24 pb-12">
+            <Suspense fallback={<div className="flex justify-center pt-24"><Loader2 className="h-8 w-8 animate-spin" /></div>}>
+                <ProductCategoryContent />
+            </Suspense>
         </div>
     );
 }

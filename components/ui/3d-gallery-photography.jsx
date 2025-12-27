@@ -157,19 +157,8 @@ function GalleryScene({
     const [autoPlay, setAutoPlay] = useState(true);
     const lastInteraction = useRef(Date.now());
 
-    // Filter out invalid images that might not have src
-    const normalizedImages = useMemo(
-        () =>
-            images
-                .map((img) => typeof img === 'string' ? { src: img, alt: '' } : img)
-                .filter(img => img && img.src), // Ensure safe mapping
-        [images]
-    );
-
-    // If no valid images, return null early
-    if (normalizedImages.length === 0) return null;
-
-    const textures = useTexture(normalizedImages.map((img) => img.src));
+    // Images are already normalized and validated by parent
+    const textures = useTexture(images.map((img) => img.src));
 
     // Create materials pool
     const materials = useMemo(
@@ -202,7 +191,7 @@ function GalleryScene({
         return positions;
     }, [visibleCount]);
 
-    const totalImages = normalizedImages.length;
+    const totalImages = images.length;
     const depthRange = DEFAULT_DEPTH_RANGE;
 
     // Initialize plane data
@@ -393,7 +382,7 @@ function GalleryScene({
         });
     });
 
-    if (normalizedImages.length === 0) return null;
+    if (totalImages === 0) return null;
 
     return (
         <>
@@ -427,21 +416,14 @@ function GalleryScene({
 
 // Fallback component for when WebGL is not available
 function FallbackGallery({ images }) {
-    const normalizedImages = useMemo(
-        () =>
-            images.map((img) =>
-                typeof img === 'string' ? { src: img, alt: '' } : img
-            ),
-        [images]
-    );
-
+    // Images are already normalized
     return (
         <div className="flex flex-col items-center justify-center h-full bg-gray-100 p-4">
             <p className="text-gray-600 mb-4">
                 WebGL not supported. Showing image list:
             </p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-h-96 overflow-y-auto">
-                {normalizedImages.map((img, i) => (
+                {images.map((img, i) => (
                     <img
                         key={i}
                         src={img.src || '/placeholder.svg'}
@@ -470,6 +452,14 @@ export default function InfiniteGallery({
 }) {
     const [webglSupported, setWebglSupported] = useState(true);
 
+    const normalizedImages = useMemo(
+        () =>
+            images
+                .map((img) => typeof img === 'string' ? { src: img, alt: '' } : img)
+                .filter(img => img && img.src), // Ensure safe mapping
+        [images]
+    );
+
     useEffect(() => {
         // Check WebGL support
         try {
@@ -484,10 +474,10 @@ export default function InfiniteGallery({
         }
     }, []);
 
-    if (!webglSupported) {
+    if (!webglSupported || normalizedImages.length === 0) {
         return (
             <div className={className} style={style}>
-                <FallbackGallery images={images} />
+                <FallbackGallery images={normalizedImages} />
             </div>
         );
     }
@@ -499,7 +489,7 @@ export default function InfiniteGallery({
                 gl={{ antialias: true, alpha: true }}
             >
                 <GalleryScene
-                    images={images}
+                    images={normalizedImages}
                     fadeSettings={fadeSettings}
                     blurSettings={blurSettings}
                 />

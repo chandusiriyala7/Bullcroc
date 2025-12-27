@@ -29,7 +29,7 @@ export default function ProductGrid({ data, loading, onClearFilters }) {
                 </div>
                 <h3 className="text-xl font-semibold mb-2">No products found</h3>
                 <p className="text-muted-foreground max-w-sm mb-6">
-                    We couldn't find any products matching your current filters. Try adjusting your search or filters.
+                    We couldn&apos;t find any products matching your current filters. Try adjusting your search or filters.
                 </p>
                 {onClearFilters && (
                     <Button onClick={onClearFilters}>

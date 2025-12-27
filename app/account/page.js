@@ -95,8 +95,8 @@ export default function AccountPage() {
                                             <button
                                                 onClick={() => setActiveTab("orders")}
                                                 className={`w-full flex items-center gap-3 px-4 py-2 rounded-md transition-colors ${activeTab === "orders"
-                                                        ? "bg-primary text-primary-foreground"
-                                                        : "hover:bg-muted"
+                                                    ? "bg-primary text-primary-foreground"
+                                                    : "hover:bg-muted"
                                                     }`}
                                             >
                                                 <Package className="h-4 w-4" />
@@ -105,8 +105,8 @@ export default function AccountPage() {
                                             <button
                                                 onClick={() => setActiveTab("profile")}
                                                 className={`w-full flex items-center gap-3 px-4 py-2 rounded-md transition-colors ${activeTab === "profile"
-                                                        ? "bg-primary text-primary-foreground"
-                                                        : "hover:bg-muted"
+                                                    ? "bg-primary text-primary-foreground"
+                                                    : "hover:bg-muted"
                                                     }`}
                                             >
                                                 <User className="h-4 w-4" />
@@ -197,7 +197,7 @@ export default function AccountPage() {
                                                                             </p>
                                                                             {item.customization?.text && (
                                                                                 <p className="text-muted-foreground">
-                                                                                    "{item.customization.text}"
+                                                                                    &quot;{item.customization.text}&quot;
                                                                                 </p>
                                                                             )}
                                                                         </div>

@@ -142,7 +142,7 @@ export default function OrderDetailPage({ params }) {
                                         </h3>
                                         {item.customization?.text && (
                                             <p className="text-sm text-muted-foreground mt-1">
-                                                Text: "{item.customization.text}"
+                                                Text: &quot;{item.customization.text}&quot;
                                             </p>
                                         )}
                                         {item.customization?.font && (

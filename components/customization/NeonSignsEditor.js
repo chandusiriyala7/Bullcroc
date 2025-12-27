@@ -272,7 +272,7 @@ export default function NeonSignsEditor({ product }) {
                             {/* Dimensions Tag */}
                             <div className="flex items-center gap-2 text-xs bg-black/50 text-white/90 px-3 py-1 rounded-md border border-white/5">
                                 <Ruler className="w-3 h-3" />
-                                <span>{dimensions.width}" x {dimensions.height}"</span>
+                                <span>{dimensions.width}&quot; x {dimensions.height}&quot;</span>
                             </div>
                         </div>
                     </div>

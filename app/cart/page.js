@@ -171,7 +171,7 @@ export default function CartPage() {
                                                     <p><span className="font-medium">Text:</span> {product.customization.text}</p>
                                                     <p><span className="font-medium">Color:</span> {product.customization.color?.name}</p>
                                                     {product.customization.dimensions && (
-                                                        <p className="text-xs text-slate-400">Size: {product.customization.dimensions.width}" x {product.customization.dimensions.height}"</p>
+                                                        <p className="text-xs text-slate-400">Size: {product.customization.dimensions.width}&quot; x {product.customization.dimensions.height}&quot;</p>
                                                     )}
                                                 </div>
                                             ) : (
