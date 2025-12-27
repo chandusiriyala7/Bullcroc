@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
-import Cart from '@/models/Cart';
+import CartProduct from '@/models/CartProduct';
 import { getTokenFromRequest, verifyToken } from '@/lib/auth';
 
 export async function POST(request) {
     try {
-        // Get token and verify user
         const token = getTokenFromRequest(request);
         if (!token) {
             return NextResponse.json(
@@ -25,46 +24,37 @@ export async function POST(request) {
         const { productId, quantity, customization, price } = await request.json();
 
         // Validation
-        if (!productId || !quantity || !customization || !price) {
+        if (!productId || !quantity || !customization) {
             return NextResponse.json(
                 { message: 'Missing required fields' },
                 { status: 400 }
             );
         }
 
-        // Connect to database
         await connectDB();
 
-        // Find or create cart
-        let cart = await Cart.findOne({ user: decoded.userId });
-
-        if (!cart) {
-            cart = new Cart({
-                user: decoded.userId,
-                items: [],
-            });
-        }
-
-        // Add item to cart
-        cart.items.push({
-            product: productId,
-            quantity,
-            customization,
-            price,
+        // Create new Cart Item (CartProduct)
+        // We create a new entry every time for customized products to allow unique configurations
+        const newCartItem = new CartProduct({
+            userId: decoded.userId,
+            productId: productId,
+            quantity: quantity,
+            customization: customization,
+            price: price, // Store the custom price
+            image: customization.previewImage || null // Lift image to top level if needed, or rely on customization.previewImage
         });
 
-        await cart.save();
+        await newCartItem.save();
 
         return NextResponse.json(
             {
                 success: true,
                 message: 'Item added to cart',
-                cart: {
-                    itemCount: cart.items.length,
-                },
+                data: newCartItem
             },
             { status: 200 }
         );
+
     } catch (error) {
         console.error('Add to cart error:', error);
         return NextResponse.json(

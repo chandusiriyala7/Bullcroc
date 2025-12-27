@@ -132,6 +132,259 @@ export default function ProductDetailPage() {
     }
 
     const isNamePlate = product.category === 'NamePlates';
+    const isMetalLetter = product.category === 'MetalLetters';
+
+    if (isMetalLetter) {
+        return (
+            <div className="min-h-screen bg-background pt-32 pb-12">
+                <div className="container mx-auto px-4 md:px-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        {/* Column 1: Images & Inputs */}
+                        <div className="lg:col-span-5 flex flex-col gap-6">
+                            {/* Main Image */}
+                            <div className="bg-white rounded-xl shadow ring-1 ring-slate-900/5 p-3">
+                                <div className="aspect-video bg-slate-100 rounded-lg overflow-hidden flex items-center justify-center p-4">
+                                    {activeImage ? (
+                                        <img
+                                            src={activeImage}
+                                            alt={product.productName}
+                                            className="max-h-full max-w-full object-contain mix-blend-multiply"
+                                        />
+                                    ) : (
+                                        <div className="flex items-center justify-center h-full text-muted-foreground">
+                                            No Image
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Thumbnails */}
+                            {product.productImage && product.productImage.length > 1 && (
+                                <div className="grid grid-cols-4 gap-2">
+                                    {product.productImage.slice(0, 4).map((img, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => setActiveImage(img)}
+                                            className={`aspect-square bg-white ring-1 rounded p-1 hover:ring-slate-900/30 ${activeImage === img ? 'ring-slate-900/30' : 'ring-slate-900/10'
+                                                }`}
+                                        >
+                                            <img
+                                                src={img}
+                                                alt={`${product.productName} ${idx + 1}`}
+                                                className="w-full h-full object-contain mix-blend-multiply"
+                                            />
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Inputs: Letters & Instructions (Left Side as per wireframe) */}
+                            <div className="space-y-4 pt-4 border-t">
+                                <div className="space-y-2">
+                                    <Label className="text-lg font-semibold">Names & Customizations</Label>
+                                    <Input
+                                        placeholder="Type your Letters"
+                                        className="h-12 text-lg"
+                                        value={customization.line1}
+                                        onChange={(e) => updateCustomization('line1', e.target.value)}
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-lg font-semibold">Other Details / Instructions</Label>
+                                    <Textarea
+                                        placeholder="Suggest us something we love to customized"
+                                        className="min-h-[120px]"
+                                        value={customization.instructions}
+                                        onChange={(e) => updateCustomization('instructions', e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Column 2: Details & Options */}
+                        <div className="lg:col-span-5 flex flex-col gap-6">
+                            <div className="space-y-2">
+                                <h1 className="text-3xl lg:text-4xl font-bold">{product.productName}</h1>
+                                {/* Price & Description */}
+                                <div className="flex items-center gap-4 my-2">
+                                    {product.sellingPrice && (
+                                        <p className="text-2xl lg:text-3xl font-medium text-red-600">
+                                            {formatPrice(product.sellingPrice)}
+                                        </p>
+                                    )}
+                                    {product.price && product.price !== product.sellingPrice && (
+                                        <p className="text-xl text-slate-400 line-through">
+                                            {formatPrice(product.price)}
+                                        </p>
+                                    )}
+                                </div>
+
+                                {product.description && (
+                                    <div className="text-slate-600 prose prose-sm max-w-none">
+                                        <p className="whitespace-pre-line">{product.description}</p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Options Grid */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <Label className="bg-neutral-800 text-white px-2 py-1 rounded-t-sm w-fit text-sm block mb-1">Letter Size</Label>
+                                    <Select onValueChange={(v) => updateCustomization('size', v)}>
+                                        <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="6inch">6 Inch</SelectItem>
+                                            <SelectItem value="8inch">8 Inch</SelectItem>
+                                            <SelectItem value="10inch">10 Inch</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <Label className="bg-neutral-800 text-white px-2 py-1 rounded-t-sm w-fit text-sm block mb-1">Symbol Options</Label>
+                                    <Select onValueChange={(v) => updateCustomization('symbol', v)}>
+                                        <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="none">None</SelectItem>
+                                            <SelectItem value="star">Star</SelectItem>
+                                            <SelectItem value="heart">Heart</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <Label className="bg-neutral-800 text-white px-2 py-1 rounded-t-sm w-fit text-sm block mb-1">Colour Options</Label>
+                                    <Select onValueChange={(v) => updateCustomization('color', v)}>
+                                        <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="gold">Gold</SelectItem>
+                                            <SelectItem value="silver">Silver</SelectItem>
+                                            <SelectItem value="rose-gold">Rose Gold</SelectItem>
+                                            <SelectItem value="black">Black</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="flex items-end">
+                                    <Button variant="outline" className="w-full bg-neutral-800 text-white hover:bg-neutral-700 hover:text-white">
+                                        Or Upload your Logo
+                                    </Button>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <Label className="bg-neutral-800 text-white px-2 py-1 rounded-t-sm w-fit text-sm block mb-1">Font Options</Label>
+                                    <Select onValueChange={(v) => updateCustomization('font', v)}>
+                                        <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="arial">Arial</SelectItem>
+                                            <SelectItem value="serif">Serif</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-1">
+                                    <Label className="bg-neutral-800 text-white px-2 py-1 rounded-t-sm w-fit text-sm block mb-1">Mounting Options</Label>
+                                    <Select onValueChange={(v) => updateCustomization('mounting', v)}>
+                                        <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="studs">Studs for Wall</SelectItem>
+                                            <SelectItem value="adhesive">Adhesive Backing</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+
+                                <div className="space-y-1 col-span-2">
+                                    <div className="flex items-center gap-2 bg-neutral-800 text-white px-3 py-2 rounded-md justify-between">
+                                        <Label className="cursor-pointer">Light Yes / No</Label>
+                                        <div className="flex items-center gap-4 bg-white text-black px-2 rounded-sm">
+                                            <label className="flex items-center gap-1 cursor-pointer text-sm">
+                                                <input
+                                                    type="radio"
+                                                    name="metal-light"
+                                                    value="yes"
+                                                    checked={customization.light === 'yes'}
+                                                    onChange={(e) => updateCustomization('light', e.target.value)}
+                                                /> Yes
+                                            </label>
+                                            <label className="flex items-center gap-1 cursor-pointer text-sm">
+                                                <input
+                                                    type="radio"
+                                                    name="metal-light"
+                                                    value="no"
+                                                    checked={customization.light === 'no'}
+                                                    onChange={(e) => updateCustomization('light', e.target.value)}
+                                                /> No
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Actions Row */}
+                            <div className="flex items-center gap-4 mt-8">
+                                <div className="flex items-center border-2 border-black rounded-sm h-12">
+                                    <button
+                                        className="px-4 text-xl font-bold hover:bg-slate-100 h-full border-r border-black"
+                                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                                    >
+                                        -
+                                    </button>
+                                    <span className="w-12 text-center font-bold text-lg">{quantity}</span>
+                                    <button
+                                        className="px-4 text-xl font-bold hover:bg-slate-100 h-full border-l border-black"
+                                        onClick={() => setQuantity(quantity + 1)}
+                                    >
+                                        +
+                                    </button>
+                                </div>
+                                <Button
+                                    variant="outline"
+                                    className="h-12 px-6 border-2 border-black text-black font-bold hover:bg-black hover:text-white uppercase flex-1"
+                                    onClick={handleAddToCart}
+                                >
+                                    Add to Cart
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    className="h-12 px-6 border-2 border-black text-black font-bold hover:bg-black hover:text-white uppercase flex-1"
+                                    onClick={handleBuyNow}
+                                >
+                                    Buy Now
+                                </Button>
+                            </div>
+                        </div>
+
+                        {/* Column 3: Vertical Scroll Images */}
+                        <div className="lg:col-span-2 hidden lg:block">
+                            <p className="text-xs text-muted-foreground mb-2 text-center">Scrolling Type</p>
+                            <div className="space-y-4 max-h-[800px] overflow-y-auto pr-2 scrollbar-hide">
+                                {product.productImage && product.productImage.map((img, idx) => (
+                                    <div key={`v-${idx}`} className="bg-white p-2 rounded shadow-sm border">
+                                        <img
+                                            src={img}
+                                            alt="Scroll view"
+                                            className="w-full aspect-square object-contain mix-blend-multiply"
+                                        />
+                                    </div>
+                                ))}
+                                {/* Duplicating for scroll effect visualization if needed */}
+                                {product.productImage && product.productImage.length < 3 && product.productImage.map((img, idx) => (
+                                    <div key={`v-dup-${idx}`} className="bg-white p-2 rounded shadow-sm border">
+                                        <img
+                                            src={img}
+                                            alt="Scroll view"
+                                            className="w-full aspect-square object-contain mix-blend-multiply"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-background pt-32 pb-12">
@@ -214,17 +467,25 @@ export default function ProductDetailPage() {
                     <div className="flex flex-col gap-4">
                         <div className="space-y-2">
                             <h1 className="text-3xl lg:text-4xl font-bold">{product.productName}</h1>
-                            <p className="text-xl text-muted-foreground">Heading</p> {/* Placeholder Heading */}
-
-                            {/* Product features / description lines */}
-                            <div className="text-slate-600 space-y-1">
-                                <p>Line 1</p>
-                                <p>Line 2</p>
-                                <p>Line 3</p>
-                                <p>Line 4</p>
-                                <p>Line 5</p>
-                                <p>Line 6</p>
+                            {/* Price & Description */}
+                            <div className="flex items-center gap-4 my-2">
+                                {product.sellingPrice && (
+                                    <p className="text-2xl lg:text-3xl font-medium text-red-600">
+                                        {formatPrice(product.sellingPrice)}
+                                    </p>
+                                )}
+                                {product.price && product.price !== product.sellingPrice && (
+                                    <p className="text-xl text-slate-400 line-through">
+                                        {formatPrice(product.price)}
+                                    </p>
+                                )}
                             </div>
+
+                            {product.description && (
+                                <div className="text-slate-600 prose prose-sm max-w-none">
+                                    <p className="whitespace-pre-line">{product.description}</p>
+                                </div>
+                            )}
                         </div>
 
                         {/* Name Plate Specific Layout */}
@@ -369,77 +630,87 @@ export default function ProductDetailPage() {
                                 </div>
                             </div>
                         ) : (
-                            // Generic Product Layout
-                            <div className="flex flex-col gap-1">
-                                <p className="capitalize text-slate-400 mt-1">{product.category}</p>
+                            // Generic Product Layout (Standardized Style)
+                            <div className="flex flex-col gap-6">
+                                <div className="space-y-2">
+                                    <h1 className="text-3xl lg:text-4xl font-bold">{product.productName}</h1>
+                                    <p className="capitalize text-slate-400 text-lg">{product.category}</p>
 
-                                <div className="flex items-center gap-4 my-4">
-                                    {product.sellingPrice && (
-                                        <p className="text-2xl lg:text-3xl font-medium text-red-600">
-                                            {formatPrice(product.sellingPrice)}
-                                        </p>
-                                    )}
-                                    {product.price && product.price !== product.sellingPrice && (
-                                        <p className="text-xl text-slate-400 line-through">
-                                            {formatPrice(product.price)}
-                                        </p>
+                                    <div className="flex items-center gap-4 py-2">
+                                        {product.sellingPrice && (
+                                            <p className="text-2xl lg:text-3xl font-medium text-red-600">
+                                                {formatPrice(product.sellingPrice)}
+                                            </p>
+                                        )}
+                                        {product.price && product.price !== product.sellingPrice && (
+                                            <p className="text-xl text-slate-400 line-through">
+                                                {formatPrice(product.price)}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    {product.description && (
+                                        <div className="my-4 space-y-2">
+                                            <p className="text-slate-600 font-medium">Description:</p>
+                                            <p className="text-slate-700 leading-relaxed">{product.description}</p>
+                                        </div>
                                     )}
                                 </div>
 
-                                {product.description && (
-                                    <div className="my-4">
-                                        <p className="text-slate-600 font-medium mb-1">Description:</p>
-                                        <p className="text-slate-700">{product.description}</p>
-                                    </div>
-                                )}
+                                {/* Common Instructions Field */}
+                                <div className="space-y-3">
+                                    <Label className="text-lg">Other Details / Instructions</Label>
+                                    <Textarea
+                                        placeholder="Add any specific instructions or customization requests..."
+                                        className="min-h-[100px]"
+                                        value={customization.instructions}
+                                        onChange={(e) => updateCustomization('instructions', e.target.value)}
+                                    />
+                                </div>
 
-                                {/* Quantity Selector */}
-                                <div className="my-4">
-                                    <label className="text-slate-600 font-medium mb-2 block">Quantity</label>
-                                    <div className="flex items-center gap-3">
-                                        <Button
-                                            variant="outline"
-                                            size="icon"
+                                {/* Actions Row */}
+                                <div className="flex flex-wrap items-center gap-4 pt-4">
+                                    {/* Quantity */}
+                                    <div className="flex items-center border rounded-md h-12">
+                                        <button
+                                            className="px-4 text-xl font-bold hover:bg-slate-100 h-full"
                                             onClick={() => setQuantity(Math.max(1, quantity - 1))}
                                         >
                                             -
-                                        </Button>
-                                        <span className="w-12 text-center font-medium">{quantity}</span>
-                                        <Button
-                                            variant="outline"
-                                            size="icon"
+                                        </button>
+                                        <span className="w-12 text-center font-bold text-lg">{quantity}</span>
+                                        <button
+                                            className="px-4 text-xl font-bold hover:bg-slate-100 h-full"
                                             onClick={() => setQuantity(quantity + 1)}
                                         >
                                             +
-                                        </Button>
+                                        </button>
                                     </div>
-                                </div>
 
-                                {/* Action Buttons */}
-                                <div className="flex flex-wrap gap-3 my-4">
+                                    {/* Add to Cart */}
                                     <Button
-                                        size="lg"
+                                        variant="outline"
+                                        className="h-12 px-8 border-2 border-black text-black font-bold hover:bg-black hover:text-white uppercase flex-1"
+                                        onClick={handleAddToCart}
+                                    >
+                                        Add to Cart
+                                    </Button>
+
+                                    {/* Buy Now */}
+                                    <Button
+                                        variant="outline"
+                                        className="h-12 px-8 border-2 border-black text-black font-bold hover:bg-black hover:text-white uppercase flex-1"
                                         onClick={handleBuyNow}
-                                        className="flex-1 bg-accent hover:bg-accent/90 text-white border-2 border-accent"
                                     >
                                         Buy Now
                                     </Button>
-                                    <Button
-                                        size="lg"
-                                        onClick={handleAddToCart}
-                                        className="flex-1 bg-primary hover:bg-accent text-white"
-                                    >
-                                        <ShoppingCart className="h-5 w-5 mr-2" />
-                                        Add to Cart
-                                    </Button>
                                 </div>
 
-                                {/* Customize Button */}
+                                {/* Create Your Own Design (Styled) */}
                                 <div className="mt-4">
                                     <Button
                                         size="lg"
-                                        variant="outline"
-                                        className="w-full border-2 border-emerald-600 text-emerald-600 hover:bg-emerald-600 hover:text-white"
+                                        className="w-full bg-[#E53E3E] hover:bg-[#C53030] text-white text-lg font-semibold py-6"
                                         onClick={() => router.push(`/customize/${product.category}/${params.productId}`)}
                                     >
                                         Create Your Own Design

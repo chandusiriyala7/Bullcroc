@@ -1,11 +1,10 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
-import Cart from '@/models/Cart';
+import CartProduct from '@/models/CartProduct';
 import { getTokenFromRequest, verifyToken } from '@/lib/auth';
 
 export async function GET(request) {
     try {
-        // Get token and verify user
         const token = getTokenFromRequest(request);
         if (!token) {
             return NextResponse.json(
@@ -22,39 +21,29 @@ export async function GET(request) {
             );
         }
 
-        // Connect to database
         await connectDB();
 
-        // Find cart and populate product details
-        const cart = await Cart.findOne({ user: decoded.userId })
-            .populate('items.product', 'name basePrice images category');
-
-        if (!cart) {
-            return NextResponse.json(
-                {
-                    success: true,
-                    cart: {
-                        items: [],
-                        total: 0,
-                    },
-                },
-                { status: 200 }
-            );
-        }
+        // Fetch from CartProduct (unifying with CartPage logic)
+        const cartItems = await CartProduct.find({ userId: decoded.userId })
+            .populate('productId');
 
         // Calculate total
-        const total = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const total = cartItems.reduce((sum, item) => {
+            const price = item.price || item.productId?.sellingPrice || 0;
+            return sum + (price * item.quantity);
+        }, 0);
 
         return NextResponse.json(
             {
                 success: true,
                 cart: {
-                    items: cart.items,
+                    items: cartItems, // CartContext expects 'items'
                     total,
                 },
             },
             { status: 200 }
         );
+
     } catch (error) {
         console.error('Get cart error:', error);
         return NextResponse.json(

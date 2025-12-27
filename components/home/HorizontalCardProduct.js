@@ -91,7 +91,7 @@ export default function HorizontalCardProduct({ category, heading }) {
                     ))}
                 </div>
             ) : (
-                <OfferCarousel offers={formattedOffers} />
+                <OfferCarousel offers={formattedOffers} onAddToCart={handleAddToCart} />
             )}
         </div>
     );

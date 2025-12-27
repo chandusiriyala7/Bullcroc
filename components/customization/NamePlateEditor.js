@@ -62,6 +62,7 @@ export default function NamePlateEditor({ product }) {
                 color: selectedColor,
                 width: selectedSize.width,
                 height: selectedSize.height,
+                transparentBackground: true // Always use transparent background to show product image behind
             });
             setSvgPreview(svg);
 
@@ -75,7 +76,7 @@ export default function NamePlateEditor({ product }) {
     const handleAddToCart = async () => {
         if (!user) {
             toast.info("Please login to add items to cart");
-            router.push(`/auth/login?redirect=/customize/${product._id}`);
+            router.push(`/auth/login?redirect=/customize/${product.category}/${product._id}`); // Fixed redirect URL
             return;
         }
 
@@ -119,7 +120,11 @@ export default function NamePlateEditor({ product }) {
             <div className="order-2 lg:order-1">
                 <div className="sticky top-24">
                     <h3 className="text-lg font-semibold mb-4">Preview</h3>
-                    <PreviewCanvas svgContent={svgPreview} className="min-h-[400px]" />
+                    <PreviewCanvas
+                        svgContent={svgPreview}
+                        backgroundImage={product.productImage?.[0]}
+                        className="min-h-[400px] bg-slate-100"
+                    />
                 </div>
             </div>
 

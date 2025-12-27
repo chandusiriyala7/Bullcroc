@@ -41,7 +41,7 @@ export default function CheckoutPage() {
         setLoading(true);
         try {
             const response = await fetch('/api/view-card-product', {
-                method: 'POST',
+                method: 'GET', // Fixed to GET
                 headers: { 'Content-Type': 'application/json' }
             });
 
@@ -84,8 +84,8 @@ export default function CheckoutPage() {
     };
 
     const handlePlaceOrder = async () => {
-        if (!userAddresses[selectedAddressIdx]) {
-            toast.error('Please add a delivery address.');
+        if (userAddresses.length === 0 || selectedAddressIdx === null || !userAddresses[selectedAddressIdx]) {
+            toast.error('Please add and select a delivery address.');
             return;
         }
 
@@ -95,14 +95,22 @@ export default function CheckoutPage() {
         }
 
         // TODO: Implement order placement API
+        // const selectedAddress = userAddresses[selectedAddressIdx];
+
         toast.success('Order placed successfully!');
         setOrderPlaced(true);
         setOrderId('ORDER_' + Date.now());
     };
 
-    const totalPrice = data.reduce((prev, curr) => prev + (curr.quantity * curr?.productId?.sellingPrice), 0);
+    const totalPrice = data.reduce((prev, curr) => {
+        const itemPrice = curr.price || curr?.productId?.sellingPrice || 0;
+        return prev + (curr.quantity * itemPrice);
+    }, 0);
+
+    const isAddressSelected = userAddresses.length > 0 && selectedAddressIdx !== null && userAddresses[selectedAddressIdx];
 
     if (orderPlaced) {
+        // ... (Success view) ...
         return (
             <div className='container mx-auto max-w-2xl p-6 min-h-[70vh] pt-32'>
                 <div className='bg-green-100 text-green-800 p-8 rounded-lg text-center'>
@@ -126,6 +134,7 @@ export default function CheckoutPage() {
             <div className='grid grid-cols-1 lg:grid-cols-2 gap-8'>
                 {/* Address Section */}
                 <div>
+                    {/* ... (Address Form - same as before) ... */}
                     <div className='bg-white p-6 rounded-lg shadow mb-6'>
                         <h2 className='text-xl font-semibold mb-3'>Delivery Address</h2>
 
@@ -194,7 +203,7 @@ export default function CheckoutPage() {
 
                         <h3 className='text-lg font-semibold mt-4 mb-2'>Your Saved Addresses</h3>
                         {userAddresses.length === 0 ? (
-                            <p className='text-gray-500'>No addresses saved yet.</p>
+                            <p className='text-gray-500'>No addresses saved yet. Please add one.</p>
                         ) : (
                             <div className='space-y-2'>
                                 {userAddresses.map((address, index) => (
@@ -205,11 +214,11 @@ export default function CheckoutPage() {
                                         onClick={() => setSelectedAddressIdx(index)}
                                     >
                                         <div className='flex-1'>
-                                            <p>{address.street}, {address.city}, {address.state} - {address.zipCode}</p>
-                                            <p>{address.country}</p>
+                                            <p className="font-medium">{address.street}, {address.city}</p>
+                                            <p className="text-sm text-gray-600">{address.state} - {address.zipCode}, {address.country}</p>
                                         </div>
                                         {selectedAddressIdx === index && (
-                                            <span className='ml-2 text-primary font-bold'>Selected</span>
+                                            <span className='ml-2 text-primary font-bold text-sm'>Selected</span>
                                         )}
                                     </div>
                                 ))}
@@ -224,16 +233,24 @@ export default function CheckoutPage() {
                         <h2 className='text-xl font-semibold mb-4'>Order Summary</h2>
 
                         <div className='space-y-3 mb-4'>
-                            {data.map((product) => (
-                                <div key={product._id} className='flex justify-between text-sm'>
-                                    <span className='text-gray-700'>
-                                        {product?.productId?.productName} x {product.quantity}
-                                    </span>
-                                    <span className='font-medium'>
-                                        {formatPrice(product?.productId?.sellingPrice * product.quantity)}
-                                    </span>
-                                </div>
-                            ))}
+                            {data.map((product) => {
+                                const itemPrice = product.price || product?.productId?.sellingPrice || 0;
+                                return (
+                                    <div key={product._id} className='flex justify-between text-sm'>
+                                        <div className="flex flex-col">
+                                            <span className='text-gray-700 font-medium'>
+                                                {product?.productId?.productName} x {product.quantity}
+                                            </span>
+                                            {product.customization && (
+                                                <span className="text-xs text-slate-500">Customized</span>
+                                            )}
+                                        </div>
+                                        <span className='font-medium'>
+                                            {formatPrice(itemPrice * product.quantity)}
+                                        </span>
+                                    </div>
+                                );
+                            })}
                         </div>
 
                         <div className='border-t pt-3 space-y-2'>
@@ -254,10 +271,13 @@ export default function CheckoutPage() {
                         </div>
 
                         <button
-                            className='bg-primary hover:bg-accent text-white p-3 w-full mt-6 rounded-lg shadow transition font-semibold'
+                            className={`w-full mt-6 p-3 rounded-lg shadow transition font-semibold ${isAddressSelected
+                                ? 'bg-primary hover:bg-accent text-white'
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
                             onClick={handlePlaceOrder}
+                            disabled={!isAddressSelected}
                         >
-                            Place Order (COD)
+                            {isAddressSelected ? 'Place Order (COD)' : 'Select Address to Checkout'}
                         </button>
                     </div>
                 </div>

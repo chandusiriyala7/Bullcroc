@@ -9,69 +9,61 @@ import { cn, formatPrice } from "@/lib/utils";
 const MotionLink = motion.create(Link);
 
 // The individual card component with hover animation
-const OfferCard = React.forwardRef(({ offer, className, ...props }, ref) => (
-    <MotionLink
-        ref={ref}
-        href={offer.href}
-        className={cn("relative flex-shrink-0 w-[300px] h-[380px] rounded-2xl overflow-hidden group snap-start block", className)}
-        whileHover={{ y: -8 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        style={{ perspective: "1000px" }}
-        {...props}
-    >
-        {/* Background Image */}
-        <img
-            src={offer.imageSrc}
-            alt={offer.imageAlt}
-            className="absolute inset-0 w-full h-2/4 object-cover transition-transform duration-500 group-hover:scale-110"
-        />
-        {/* Card Content */}
-        <div className="absolute bottom-0 left-0 right-0 h-2/4 bg-white dark:bg-zinc-900 section-bg p-5 flex flex-col justify-between border-t border-border/50">
-            <div className="space-y-2">
-                {/* Tag */}
-                <div className="flex items-center text-xs text-muted-foreground">
-                    <Tag className="w-4 h-4 mr-2 text-primary" />
-                    <span>{offer.tag}</span>
-                </div>
-                {/* Title & Description */}
-                <h3 className="text-xl font-bold text-foreground leading-tight">{offer.title}</h3>
-                <p className="text-sm text-muted-foreground line-clamp-2">{offer.description}</p>
-                <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-lg font-bold text-primary">
-                        {offer.sellingPrice ? formatPrice(offer.sellingPrice) : null}
-                    </span>
-                    {offer.price && offer.sellingPrice && offer.price > offer.sellingPrice && (
-                        <span className="text-sm text-muted-foreground line-through decoration-slate-500">
-                            {formatPrice(offer.price)}
-                        </span>
-                    )}
-                </div>
-            </div>
+const OfferCard = React.forwardRef(({ offer, className, onAddToCart, ...props }, ref) => {
+    const isCustomizable = ['NamePlates', 'MetalLetters', 'NeonSigns'].includes(offer.tag);
 
-            {/* Footer */}
-            <div className="flex items-center justify-between pt-4 border-t border-border">
-                <div className="flex items-center gap-3">
-                    {offer.brandLogoSrc && (
-                        <img src={offer.brandLogoSrc} alt={`${offer.brandName} logo`} className="w-8 h-8 rounded-full bg-muted object-contain" />
-                    )}
-                    <div>
-                        <p className="text-xs font-semibold text-foreground">{offer.brandName}</p>
-                        {offer.promoCode && (
-                            <p className="text-xs text-muted-foreground">{offer.promoCode}</p>
-                        )}
+    return (
+        <motion.div
+            ref={ref}
+            className={cn("relative flex-shrink-0 w-[300px] h-[380px] rounded-2xl overflow-hidden group snap-start block bg-white dark:bg-zinc-900 border border-border/50 shadow-sm", className)}
+            whileHover={{ y: -8 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            style={{ perspective: "1000px" }}
+            {...props}
+        >
+            <div className="flex flex-col h-full">
+                {/* Clickable Area: Image & Details */}
+                <Link href={offer.href} className="flex-1 flex flex-col overflow-hidden">
+                    {/* Background Image */}
+                    <img
+                        src={offer.imageSrc}
+                        alt={offer.imageAlt}
+                        className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
+
+                    {/* Card Content - Title/Price */}
+                    <div className="flex-1 p-5 flex flex-col justify-between">
+                        <div className="space-y-2">
+                            {/* Tag */}
+                            <div className="flex items-center text-xs text-muted-foreground">
+                                <Tag className="w-4 h-4 mr-2 text-primary" />
+                                <span>{offer.tag}</span>
+                            </div>
+                            {/* Title & Description */}
+                            <h3 className="text-xl font-bold text-foreground leading-tight line-clamp-1">{offer.title}</h3>
+                            <p className="text-sm text-muted-foreground line-clamp-2">{offer.description}</p>
+
+                            <div className="flex items-baseline gap-2 mt-1 pt-2">
+                                <span className="text-lg font-bold text-primary">
+                                    {offer.sellingPrice ? formatPrice(offer.sellingPrice) : null}
+                                </span>
+                                {offer.price && offer.sellingPrice && offer.price > offer.sellingPrice && (
+                                    <span className="text-sm text-muted-foreground line-through decoration-slate-500">
+                                        {formatPrice(offer.price)}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-secondary-foreground transform transition-transform duration-300 group-hover:rotate-[-45deg] group-hover:bg-primary group-hover:text-primary-foreground">
-                    <ArrowRight className="w-4 h-4" />
-                </div>
+                </Link>
             </div>
-        </div>
-    </MotionLink>
-));
+        </motion.div>
+    );
+});
 OfferCard.displayName = "OfferCard";
 
 // The main carousel component with scroll functionality
-const OfferCarousel = React.forwardRef(({ offers, className, ...props }, ref) => {
+const OfferCarousel = React.forwardRef(({ offers, onAddToCart, className, ...props }, ref) => {
     const scrollContainerRef = React.useRef(null);
 
     const scroll = (direction) => {
@@ -104,7 +96,7 @@ const OfferCarousel = React.forwardRef(({ offers, className, ...props }, ref) =>
                 className="flex space-x-6 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory px-2"
             >
                 {offers.map((offer) => (
-                    <OfferCard key={offer.id} offer={offer} />
+                    <OfferCard key={offer.id} offer={offer} onAddToCart={onAddToCart} />
                 ))}
             </div>
 

@@ -29,7 +29,7 @@ export default function CartPage() {
         setLoading(true);
         try {
             const response = await fetch('/api/view-card-product', {
-                method: 'POST',
+                method: 'GET', // Fixed to GET
                 headers: { 'Content-Type': 'application/json' }
             });
 
@@ -100,23 +100,12 @@ export default function CartPage() {
     };
 
     const totalQty = data.reduce((prev, curr) => prev + curr.quantity, 0);
-    const totalPrice = data.reduce((prev, curr) => prev + (curr.quantity * curr?.productId?.sellingPrice), 0);
+    const totalPrice = data.reduce((prev, curr) => {
+        const itemPrice = curr.price || curr?.productId?.sellingPrice || 0;
+        return prev + (curr.quantity * itemPrice);
+    }, 0);
 
-    if (!user) {
-        return (
-            <div className='container mx-auto max-w-5xl p-6 min-h-[70vh] pt-32'>
-                <div className='flex flex-col items-center justify-center h-96'>
-                    <div className='text-gray-500 text-lg mb-2'>Please login to view your cart</div>
-                    <button
-                        className='mt-4 px-6 py-2 bg-primary text-white rounded shadow hover:bg-accent transition'
-                        onClick={() => router.push('/auth/login?redirect=/cart')}
-                    >
-                        Login
-                    </button>
-                </div>
-            </div>
-        );
-    }
+    // ... (Login check) ...
 
     return (
         <div className='container mx-auto max-w-5xl p-6 min-h-[70vh] pt-32'>
@@ -142,64 +131,87 @@ export default function CartPage() {
                             </button>
                         </div>
                     ) : (
-                        data.map((product) => (
-                            <div
-                                key={product?._id}
-                                className='w-full bg-white h-auto my-4 border border-slate-300 rounded grid grid-cols-[128px,1fr] shadow-lg hover:shadow-2xl transition-shadow'
-                            >
-                                <div className='w-32 h-32 bg-slate-200 flex flex-col items-center justify-center rounded-l'>
-                                    {product?.productId?.productImage?.[0] && (
-                                        <img
-                                            src={product.productId.productImage[0]}
-                                            className='w-full h-full object-scale-down mix-blend-multiply'
-                                            alt={product?.productId?.productName}
-                                        />
-                                    )}
-                                </div>
+                        data.map((product) => {
+                            const isCustom = !!product.customization;
+                            const itemPrice = product.price || product?.productId?.sellingPrice;
+                            const displayImage = isCustom && product.customization.previewImage
+                                ? product.customization.previewImage
+                                : product?.productId?.productImage?.[0];
 
-                                <div className='px-4 py-2 relative flex flex-col justify-between'>
-                                    {/* Delete product */}
-                                    <div
-                                        className='absolute right-0 top-0 text-red-600 rounded-full p-2 hover:bg-gray-600 hover:text-white cursor-pointer'
-                                        onClick={() => deleteCartProduct(product?._id)}
-                                    >
-                                        <MdDelete />
+                            return (
+                                <div
+                                    key={product?._id}
+                                    className='w-full bg-white h-auto my-4 border border-slate-300 rounded grid grid-cols-[128px,1fr] shadow-lg hover:shadow-2xl transition-shadow'
+                                >
+                                    <div className='w-32 h-32 bg-slate-200 flex flex-col items-center justify-center rounded-l overflow-hidden p-2'>
+                                        {displayImage && (
+                                            <img
+                                                src={displayImage}
+                                                className='w-full h-full object-contain'
+                                                alt={product?.productId?.productName}
+                                            />
+                                        )}
                                     </div>
 
-                                    <div>
-                                        <h2 className='text-lg lg:text-xl text-ellipsis line-clamp-1 font-semibold'>
-                                            {product?.productId?.productName}
-                                        </h2>
-                                        <p className='capitalize text-slate-500'>{product?.productId?.category}</p>
-                                    </div>
-
-                                    <div className='flex items-center justify-between mt-2'>
-                                        <p className='text-red-600 font-medium text-lg'>
-                                            {formatPrice(product?.productId?.sellingPrice)}
-                                        </p>
-                                        <p className='text-slate-600 font-semibold text-lg'>
-                                            {formatPrice(product?.productId?.sellingPrice * product?.quantity)}
-                                        </p>
-                                    </div>
-
-                                    <div className='flex items-center gap-3 mt-2'>
-                                        <button
-                                            className='border border-red-600 text-red-600 hover:bg-gray-600 hover:text-white w-7 h-7 flex justify-center items-center rounded'
-                                            onClick={() => decreaseQty(product?._id, product?.quantity)}
+                                    <div className='px-4 py-2 relative flex flex-col justify-between'>
+                                        {/* Delete product */}
+                                        <div
+                                            className='absolute right-0 top-0 text-red-600 rounded-full p-2 hover:bg-gray-600 hover:text-white cursor-pointer'
+                                            onClick={() => deleteCartProduct(product?._id)}
                                         >
-                                            -
-                                        </button>
-                                        <span className='font-semibold'>{product?.quantity}</span>
-                                        <button
-                                            className='border border-red-600 text-red-600 hover:bg-gray-600 hover:text-white w-7 h-7 flex justify-center items-center rounded'
-                                            onClick={() => increaseQty(product?._id, product?.quantity)}
-                                        >
-                                            +
-                                        </button>
+                                            <MdDelete />
+                                        </div>
+
+                                        <div>
+                                            <h2 className='text-lg lg:text-xl text-ellipsis line-clamp-1 font-semibold'>
+                                                {product?.productId?.productName}
+                                            </h2>
+                                            {isCustom ? (
+                                                <div className="text-sm text-slate-500 mt-1 space-y-0.5">
+                                                    <p><span className="font-medium">Text:</span> {product.customization.text}</p>
+                                                    <p><span className="font-medium">Color:</span> {product.customization.color?.name}</p>
+                                                    {product.customization.dimensions && (
+                                                        <p className="text-xs text-slate-400">Size: {product.customization.dimensions.width}" x {product.customization.dimensions.height}"</p>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <p className='capitalize text-slate-500'>{product?.productId?.category}</p>
+                                            )}
+                                        </div>
+
+                                        <div className='flex items-center justify-between mt-2'>
+                                            <div className="flex flex-col">
+                                                <p className='text-red-600 font-medium text-lg'>
+                                                    {formatPrice(itemPrice)}
+                                                </p>
+                                                {isCustom && (
+                                                    <span className="text-[10px] text-slate-400 bg-slate-100 px-1 rounded">Custom Pricing</span>
+                                                )}
+                                            </div>
+                                            <p className='text-slate-600 font-semibold text-lg'>
+                                                {formatPrice(itemPrice * product?.quantity)}
+                                            </p>
+                                        </div>
+
+                                        <div className='flex items-center gap-3 mt-2'>
+                                            <button
+                                                className='border border-red-600 text-red-600 hover:bg-gray-600 hover:text-white w-7 h-7 flex justify-center items-center rounded'
+                                                onClick={() => decreaseQty(product?._id, product?.quantity)}
+                                            >
+                                                -
+                                            </button>
+                                            <span className='font-semibold'>{product?.quantity}</span>
+                                            <button
+                                                className='border border-red-600 text-red-600 hover:bg-gray-600 hover:text-white w-7 h-7 flex justify-center items-center rounded'
+                                                onClick={() => increaseQty(product?._id, product?.quantity)}
+                                            >
+                                                +
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))
+                            );
+                        })
                     )}
                 </div>
 

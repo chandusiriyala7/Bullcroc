@@ -7,6 +7,18 @@ const addToCartSchema = new mongoose.Schema({
     },
     quantity: Number,
     userId: String,
+    customization: {
+        type: Object,
+        default: null
+    },
+    price: {
+        type: Number,
+        default: null
+    },
+    image: {
+        type: String,
+        default: null
+    }
 }, {
     timestamps: true
 });
