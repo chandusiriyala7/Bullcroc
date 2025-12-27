@@ -1,0 +1,12 @@
+<!-- Placeholder SVG for Name Plate Category -->
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="wood" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3d2817;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2a1810;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#wood)"/>
+  <rect x="200" y="200" width="400" height="200" rx="8" fill="#8B7355" opacity="0.9"/>
+  <text x="400" y="320" font-family="serif" font-size="48" fill="#D4AF37" text-anchor="middle" font-weight="bold">Name Plate</text>
+</svg>

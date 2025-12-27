@@ -1,0 +1,16 @@
+<!-- Placeholder SVG for Neon Signs -->
+<svg width="1920" height="1080" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="10" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="1920" height="1080" fill="#1a1a1a"/>
+  <rect x="0" y="0" width="1920" height="1080" fill="#2a1a1a" opacity="0.5"/>
+  <text x="960" y="600" font-family="Arial, sans-serif" font-size="200" fill="#00ffff" text-anchor="middle" font-weight="bold" filter="url(#glow)">OPEN</text>
+  <text x="960" y="600" font-family="Arial, sans-serif" font-size="200" fill="#00ffff" text-anchor="middle" font-weight="bold" opacity="0.8">OPEN</text>
+</svg>
