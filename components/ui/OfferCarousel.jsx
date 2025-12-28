@@ -15,7 +15,7 @@ const OfferCard = React.forwardRef(({ offer, className, onAddToCart, ...props },
     return (
         <motion.div
             ref={ref}
-            className={cn("relative flex-shrink-0 w-[300px] h-[380px] rounded-2xl overflow-hidden group snap-start block bg-white dark:bg-zinc-900 border border-border/50 shadow-sm", className)}
+            className={cn("relative flex-shrink-0 w-[110px] md:w-[300px] h-[200px] md:h-[380px] rounded-xl md:rounded-2xl overflow-hidden group snap-start block bg-white dark:bg-zinc-900 border border-border/50 shadow-sm", className)}
             whileHover={{ y: -8 }}
             transition={{ type: "spring", stiffness: 300, damping: 20 }}
             style={{ perspective: "1000px" }}
@@ -28,27 +28,27 @@ const OfferCard = React.forwardRef(({ offer, className, onAddToCart, ...props },
                     <img
                         src={offer.imageSrc}
                         alt={offer.imageAlt}
-                        className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="w-full h-24 md:h-48 object-cover transition-transform duration-500 group-hover:scale-110"
                     />
 
                     {/* Card Content - Title/Price */}
-                    <div className="flex-1 p-5 flex flex-col justify-between">
+                    <div className="flex-1 p-2 md:p-5 flex flex-col justify-between">
                         <div className="space-y-2">
                             {/* Tag */}
-                            <div className="flex items-center text-xs text-muted-foreground">
+                            <div className="hidden md:flex items-center text-xs text-muted-foreground">
                                 <Tag className="w-4 h-4 mr-2 text-primary" />
                                 <span>{offer.tag}</span>
                             </div>
                             {/* Title & Description */}
-                            <h3 className="text-xl font-bold text-foreground leading-tight line-clamp-1">{offer.title}</h3>
-                            <p className="text-sm text-muted-foreground line-clamp-2">{offer.description}</p>
+                            <h3 className="text-[10px] md:text-xl font-bold text-foreground leading-tight line-clamp-2 md:line-clamp-1">{offer.title}</h3>
+                            <p className="hidden md:block text-sm text-muted-foreground line-clamp-2">{offer.description}</p>
 
-                            <div className="flex items-baseline gap-2 mt-1 pt-2">
-                                <span className="text-lg font-bold text-primary">
+                            <div className="flex items-baseline gap-1 md:gap-2 mt-1 pt-1 md:pt-2">
+                                <span className="text-xs md:text-lg font-bold text-primary">
                                     {offer.sellingPrice ? formatPrice(offer.sellingPrice) : null}
                                 </span>
                                 {offer.price && offer.sellingPrice && offer.price > offer.sellingPrice && (
-                                    <span className="text-sm text-muted-foreground line-through decoration-slate-500">
+                                    <span className="hidden md:inline text-sm text-muted-foreground line-through decoration-slate-500">
                                         {formatPrice(offer.price)}
                                     </span>
                                 )}
@@ -93,7 +93,7 @@ const OfferCarousel = React.forwardRef(({ offers, onAddToCart, className, ...pro
             {/* Scrollable Container */}
             <div
                 ref={scrollContainerRef}
-                className="flex space-x-6 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory px-2"
+                className="flex space-x-2 md:space-x-6 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory px-2"
             >
                 {offers.map((offer) => (
                     <OfferCard key={offer.id} offer={offer} onAddToCart={onAddToCart} />
