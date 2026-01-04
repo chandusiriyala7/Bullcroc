@@ -24,7 +24,7 @@ export async function GET(request) {
         await connectDB();
 
         // Fetch from CartProduct (unifying with CartPage logic)
-        const cartItems = await CartProduct.find({ userId: decoded.userId })
+        const cartItems = await CartProduct.find({ userId: decoded._id })
             .populate('productId');
 
         // Calculate total

@@ -36,7 +36,7 @@ export async function POST(request) {
         // Create new Cart Item (CartProduct)
         // We create a new entry every time for customized products to allow unique configurations
         const newCartItem = new CartProduct({
-            userId: decoded.userId,
+            userId: decoded._id,
             productId: productId,
             quantity: quantity,
             customization: customization,

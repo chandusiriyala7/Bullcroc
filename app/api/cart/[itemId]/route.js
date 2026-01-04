@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
-import Cart from '@/models/Cart';
+import CartProduct from '@/models/CartProduct';
 import { getTokenFromRequest, verifyToken } from '@/lib/auth';
 
 export async function DELETE(request, { params }) {
@@ -27,19 +27,26 @@ export async function DELETE(request, { params }) {
         // Connect to database
         await connectDB();
 
-        // Find cart and remove item
-        const cart = await Cart.findOne({ user: decoded.userId });
+        // Find the cart item
+        const cartItem = await CartProduct.findOne({ _id: itemId });
 
-        if (!cart) {
+        if (!cartItem) {
             return NextResponse.json(
-                { message: 'Cart not found' },
+                { message: 'Item not found' },
                 { status: 404 }
             );
         }
 
-        // Remove item
-        cart.items = cart.items.filter(item => item._id.toString() !== itemId);
-        await cart.save();
+        // Verify ownership
+        if (cartItem.userId.toString() !== decoded._id.toString()) {
+            return NextResponse.json(
+                { message: 'Not authorized to remove this item' },
+                { status: 403 }
+            );
+        }
+
+        // Remove item using findByIdAndDelete
+        await CartProduct.findByIdAndDelete(itemId);
 
         return NextResponse.json(
             {
