@@ -1,62 +1,58 @@
 import TopProducts from "@/components/home/TopProducts";
 import VerticalCardProduct from "@/components/home/VerticalCardProduct";
-import InfiniteGallery from "@/components/ui/3d-gallery-photography";
-import { BackgroundPaths } from "@/components/ui/background-paths";
+import { HeroParallax } from "@/components/ui/hero-parallax";
 import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product";
 
-async function getProductImages() {
+async function getHeroProducts() {
     try {
         await connectDB();
-        const products = await Product.find({}).select('productImage').limit(20);
-        const images = products
-            .map(p => p.productImage?.[0])
-            .filter(Boolean)
-            .map(src => ({ src, alt: 'Product Image' }));
-        return images;
+        // Fetch products to populate the parallax (randomized)
+        const products = await Product.aggregate([
+            { $match: { productImage: { $exists: true, $not: { $size: 0 } } } }, // Ensure has images
+            { $sample: { size: 15 } }
+        ]);
+
+        const validProducts = products.map(p => ({
+            title: p.productName,
+            link: `/product/${p._id}`,
+            thumbnail: p.productImage?.[0]?.replace('http://', 'https://')
+        }));
+
+        return validProducts;
     } catch (error) {
-        console.error("Failed to fetch product images:", error);
+        console.error("Failed to fetch products for hero:", error);
         return [];
     }
 }
 
+// Hero Parallax Home Page
 export default async function Home() {
-    const images = await getProductImages();
-    const fallbackImages = [
-        'https://images.unsplash.com/photo-1741332966416-414d8a5b8887?w=600&auto=format&fit=crop&q=60',
-        'https://images.unsplash.com/photo-1754769440490-2eb64d715775?w=600&auto=format&fit=crop&q=60',
-        'https://images.unsplash.com/photo-1758640920659-0bb864175983?w=600&auto=format&fit=crop&q=60',
-        'https://images.unsplash.com/photo-1758367454070-731d3cc11774?w=600&auto=format&fit=crop&q=60',
-        'https://images.unsplash.com/photo-1746023841657-e5cd7cc90d2c?w=600&auto=format&fit=crop&q=60'
-    ].map(src => ({ src }));
+    let products = await getHeroProducts();
 
-    const galleryImages = images.length > 3 ? images : fallbackImages;
+    // Fallback if not enough products
+    if (products.length < 10) {
+        const fallbackProducts = [
+            { title: "Neon Vibes", link: "/product-category?category=NeonLightsSign", thumbnail: "https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600&auto=format&fit=crop&q=60" },
+            { title: "Metal Art", link: "/product-category?category=MetalLetters", thumbnail: "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=600&auto=format&fit=crop&q=60" },
+            { title: "Custom Names", link: "/product-category?category=NamePlates", thumbnail: "https://images.unsplash.com/photo-1533158657152-c0cb4a520977?w=600&auto=format&fit=crop&q=60" },
+            { title: "Luxury Decor", link: "/", thumbnail: "https://images.unsplash.com/photo-1513161455079-7dc1de15ef3e?w=600&auto=format&fit=crop&q=60" },
+            { title: "Modern Design", link: "/", thumbnail: "https://images.unsplash.com/photo-1540573133985-cd8752cf3753?w=600&auto=format&fit=crop&q=60" },
+            { title: "Elegant Signs", link: "/", thumbnail: "https://images.unsplash.com/photo-1618220179428-22790b461013?w=600&auto=format&fit=crop&q=60" },
+            { title: "Urban Style", link: "/", thumbnail: "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=600&auto=format&fit=crop&q=60" },
+            { title: "Classic Finish", link: "/", thumbnail: "https://images.unsplash.com/photo-1534349762913-577363fde833?w=600&auto=format&fit=crop&q=60" },
+            { title: "Bold Statement", link: "/", thumbnail: "https://images.unsplash.com/photo-1617103996702-96ff29b1c467?w=600&auto=format&fit=crop&q=60" },
+            { title: "Creative Space", link: "/", thumbnail: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=600&auto=format&fit=crop&q=60" },
+        ];
+        products = [...products, ...fallbackProducts].slice(0, 15);
+    }
 
     return (
         <div className="min-h-screen bg-background">
-            {/* 3D Gallery Hero Section with Background Paths */}
-            <div className="relative h-screen w-full overflow-hidden text-center">
-                <BackgroundPaths title="BullCroc">
-                    <InfiniteGallery
-                        images={galleryImages}
-                        speed={1.5}
-                        zSpacing={3}
-                        visibleCount={12}
-                        falloff={{ near: 0.8, far: 14 }}
-                        className="h-full w-full"
-                    />
-                </BackgroundPaths>
-
-                {/* Instructions */}
-                <div className="absolute bottom-10 left-0 right-0 text-center pointer-events-none z-30">
-                    <p className="font-mono uppercase text-xs font-semibold text-white/50">
-                        Use mouse wheel or touch to navigate
-                    </p>
-                </div>
-            </div>
+            <HeroParallax products={products} />
 
             {/* Main Content - Full Width */}
-            <div className="w-full px-4 lg:px-6 py-12">
+            <div className="w-full px-4 lg:px-6 py-12 relative z-10 bg-background">
                 <TopProducts heading="Top Products" />
 
                 <VerticalCardProduct
